@@ -558,10 +558,13 @@ public:
                     if (!isInEditMode()) {
                         isEditModeEnabled = true;
                         // blinker will be drawn
+                        if(item->getValue() != "") {
+                            blinkerPosition = blinkerPosition + strlen(item->getValue());
+                        }
                         drawCursor();
-                        if (item->getCallbackStr() != NULL)
-                        (item->getCallbackStr())(item->getValue());
-
+                        if (item->getCallbackStr() != NULL) {
+                            (item->getCallbackStr())(item->getValue());
+                        }
                     }
                     break;
                 }
@@ -779,6 +782,29 @@ public:
         //
         update();
     }
+
+    void typeString(String string) {
+        MenuItem* item = currentMenuTable[cursorPosition];
+        //
+        if (item->getType() != MENU_ITEM_INPUT || !isEditModeEnabled) return;
+
+        size_t str_length = string.length();
+        char* buf = new char[str_length + 1];
+        concat(item->getValue(), string.c_str(), buf);
+
+        item->setValue(buf);
+        //
+        isCharPickerActive = false;
+        //
+        // update blinker position
+        //
+        blinkerPosition = blinkerPosition + str_length;
+        //
+        // repaint menu
+        //
+        update();
+    }
+
     /**
      * Draw a character on the display
      * used for `Input` type menu items.
